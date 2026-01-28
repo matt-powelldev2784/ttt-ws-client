@@ -47,7 +47,17 @@ type SetPlayerIdAction = {
   playerId: string
 }
 
-type GameAction = StatusAction | SetPlayerIdAction
+type UpdateGameAction = {
+  type: 'UPDATE_GAME_STATE'
+  status: Status
+  gameId: string
+  playerSymbol: 'X' | 'O'
+  board: Board
+  currentTurn: 'X' | 'O'
+  winner?: 'X' | 'O' | 'DRAW'
+}
+
+type GameAction = StatusAction | SetPlayerIdAction | UpdateGameAction
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -55,6 +65,17 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
       return { ...state, status: action.status }
     case 'SET_PLAYER_ID':
       return { ...state, playerId: action.playerId }
+    case 'UPDATE_GAME_STATE':
+      return {
+        ...state,
+        status: action.status,
+        gameId: action.gameId,
+        playerSymbol: action.playerSymbol,
+        board: action.board,
+        currentTurn: action.currentTurn,
+        winner: action.winner,
+      }
+
     default:
       return state
   }
@@ -63,7 +84,8 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
   const [gameState, setGameState] = useReducer(gameReducer, initialGameState)
-  console.log('gameState', gameState)
+
+  console.table(gameState)
 
   useEffect(() => {
     if (socketRef.current) {
@@ -72,10 +94,20 @@ export const Game = () => {
 
     const socket = new WebSocket('ws://localhost:8081/ws')
     socketRef.current = socket
-    setGameState({ type: 'SET_STATUS', status: 'CONNECTED' })
 
     const handleMessage = (event: MessageEvent) => {
-      setGameState(event.data)
+      const message = JSON.parse(event.data)
+      if (message.type === 'GAME_STATE') {
+        setGameState({
+          type: 'UPDATE_GAME_STATE',
+          status: message.status,
+          gameId: message.gameId,
+          playerSymbol: message.playerSymbol,
+          board: message.board,
+          currentTurn: message.currentTurn,
+          winner: message.winner,
+        })
+      }
     }
 
     socket.addEventListener('message', handleMessage)
@@ -105,7 +137,7 @@ export const Game = () => {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
-      {gameState.status !== 'CONNECTED' && (
+      {gameState.status === 'NOT_CONNECTED' && (
         <p className="bg-gray-600 p-2 px-4 m-2 rounded text-white text-bold w-40">
           Connecting...
         </p>
@@ -122,6 +154,14 @@ export const Game = () => {
           Start Game
         </button>
       )}
+
+      {gameState.status === 'WAITING_FOR_OPPONENT' && (
+        <div>WAITING_FOR_OPPONENT</div>
+      )}
+
+      {gameState.status === 'IN_PROGRESS' && <div>IN_PROGRESS</div>}
+
+      {gameState.status === 'COMPLETED' && <div>COMPLETED</div>}
     </main>
   )
 }
