@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import Home from '@/components/Home'
+import { Game } from '@/components/Game'
 
 export const Route = createFileRoute('/')({
   component: App,
@@ -8,7 +8,7 @@ export const Route = createFileRoute('/')({
 function App() {
   return (
     <div className="text-center">
-      <Home />
+      <Game />
     </div>
   )
 }
