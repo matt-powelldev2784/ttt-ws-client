@@ -84,6 +84,9 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
   const [gameState, setGameState] = useReducer(gameReducer, initialGameState)
+  const serverUrl =
+    import.meta.env.VITE_SERVER_URL_LOCAL ??
+    import.meta.env.VITE_SERVER_URL_PROD
 
   console.table(gameState)
 
@@ -92,7 +95,7 @@ export const Game = () => {
       return
     }
 
-    const socket = new WebSocket('ws://localhost:8081/ws')
+    const socket = new WebSocket(serverUrl)
     socketRef.current = socket
 
     const handleMessage = (event: MessageEvent) => {
