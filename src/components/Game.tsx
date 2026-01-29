@@ -58,7 +58,17 @@ type UpdateGameAction = {
   error: string | null | undefined
 }
 
-type GameAction = StatusAction | SetPlayerIdAction | UpdateGameAction
+type GameMoveAction = {
+  type: 'GAME_MOVE'
+  board: Board
+  currentTurn: 'X' | 'O'
+}
+
+type GameAction =
+  | StatusAction
+  | SetPlayerIdAction
+  | UpdateGameAction
+  | GameMoveAction
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -78,6 +88,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         currentTurn: action.currentTurn,
         winner: action.winner,
         error: action.error || null,
+      }
+    case 'GAME_MOVE':
+      return {
+        ...state,
+        board: action.board,
+        currentTurn: action.currentTurn,
       }
 
     default:
@@ -117,6 +133,13 @@ export const Game = () => {
           currentTurn: message.currentTurn,
           winner: message.winner,
           error: message.error,
+        })
+      }
+      if (message.type === 'GAME_MOVE') {
+        setGameState({
+          type: 'GAME_MOVE',
+          board: message.board,
+          currentTurn: message.currentTurn,
         })
       }
     }
