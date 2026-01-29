@@ -1,8 +1,7 @@
 import { useEffect, useReducer, useRef } from 'react'
 
 export type Cell = 'X' | 'O' | null
-export type Line = [Cell, Cell, Cell]
-export type Board = [Line, Line, Line]
+export type Board = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell]
 
 type Status =
   | 'NOT_CONNECTED'
@@ -24,11 +23,7 @@ type GameState = {
 
 const initialGameState: GameState = {
   status: 'NOT_CONNECTED',
-  board: [
-    [null, null, null],
-    [null, null, null],
-    [null, null, null],
-  ],
+  board: [null, null, null, null, null, null, null, null, null],
   playerSymbol: null,
   playerId: null,
   opponentId: null,
