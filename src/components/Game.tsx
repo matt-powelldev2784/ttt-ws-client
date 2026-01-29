@@ -62,6 +62,7 @@ type GameMoveAction = {
   type: 'GAME_MOVE'
   board: Board
   currentTurn: 'X' | 'O'
+  error: string | null | undefined
 }
 
 type GameAction =
@@ -94,6 +95,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         ...state,
         board: action.board,
         currentTurn: action.currentTurn,
+        error: action.error || null,
       }
 
     default:
@@ -140,6 +142,7 @@ export const Game = () => {
           type: 'GAME_MOVE',
           board: message.board,
           currentTurn: message.currentTurn,
+          error: message.error || null,
         })
       }
     }
