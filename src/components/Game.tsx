@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef } from 'react'
+import logo from '../assets/ttt-logo.svg'
 
 export type Cell = 'X' | 'O' | null
 export type Board = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell]
@@ -19,6 +20,7 @@ type GameState = {
   gameId: string | null
   currentTurn?: 'X' | 'O'
   winner?: 'X' | 'O' | 'DRAW'
+  error?: string | null | undefined
 }
 
 const initialGameState: GameState = {
@@ -30,6 +32,7 @@ const initialGameState: GameState = {
   gameId: null,
   currentTurn: undefined,
   winner: undefined,
+  error: undefined,
 }
 
 type StatusAction = {
@@ -47,9 +50,12 @@ type UpdateGameAction = {
   status: Status
   gameId: string
   playerSymbol: 'X' | 'O'
+  playerId: string
+  opponentId: string
   board: Board
   currentTurn: 'X' | 'O'
   winner?: 'X' | 'O' | 'DRAW'
+  error: string | null | undefined
 }
 
 type GameAction = StatusAction | SetPlayerIdAction | UpdateGameAction
@@ -66,9 +72,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         status: action.status,
         gameId: action.gameId,
         playerSymbol: action.playerSymbol,
+        playerId: action.playerId,
+        opponentId: action.opponentId,
         board: action.board,
         currentTurn: action.currentTurn,
         winner: action.winner,
+        error: action.error || null,
       }
 
     default:
@@ -95,15 +104,19 @@ export const Game = () => {
 
     const handleMessage = (event: MessageEvent) => {
       const message = JSON.parse(event.data)
+      console.log('message', message)
       if (message.type === 'GAME_STATE') {
         setGameState({
           type: 'UPDATE_GAME_STATE',
           status: message.status,
           gameId: message.gameId,
           playerSymbol: message.playerSymbol,
+          playerId: message.playerId,
+          opponentId: message.opponentId,
           board: message.board,
           currentTurn: message.currentTurn,
           winner: message.winner,
+          error: message.error,
         })
       }
     }
@@ -133,31 +146,86 @@ export const Game = () => {
     socket.send(message)
   }
 
+  const addMoveToBoard = (index: number) => {
+    const move = JSON.stringify({
+      type: 'MAKE_MOVE',
+      payload: {
+        gameId: gameState.gameId,
+        index: index,
+        symbol: gameState.playerSymbol,
+      },
+    })
+
+    sendMessage(move)
+  }
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
       {gameState.status === 'NOT_CONNECTED' && (
-        <p className="bg-gray-600 p-2 px-4 m-2 rounded text-white text-bold w-40">
-          Connecting...
-        </p>
+        <>
+          <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
+          <p className="text-white font-bold p-2 px-4 m-2"> Connecting...</p>
+        </>
       )}
 
       {gameState.status === 'CONNECTED' && (
-        <button
-          type="button"
-          className="bg-green-600 cursor-pointer p-2 px-4 m-2 rounded text-white text-bold"
-          onClick={() =>
-            sendMessage(JSON.stringify({ type: 'START_GAME', payload: {} }))
-          }
-        >
-          Start Game
-        </button>
+        <>
+          <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
+          <button
+            type="button"
+            className="bg-green-600 cursor-pointer p-2 px-4 m-2 rounded text-white text-bold"
+            onClick={() =>
+              sendMessage(JSON.stringify({ type: 'START_GAME', payload: {} }))
+            }
+          >
+            Start Game
+          </button>
+        </>
       )}
 
       {gameState.status === 'WAITING_FOR_OPPONENT' && (
-        <div>WAITING_FOR_OPPONENT</div>
+        <>
+          <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
+          <p className="text-white font-bold p-2 px-4 m-2">
+            Waiting for opponent...
+          </p>
+        </>
       )}
 
-      {gameState.status === 'IN_PROGRESS' && <div>IN_PROGRESS</div>}
+      {gameState.status === 'IN_PROGRESS' && (
+        <div className="flex flex-col items-center">
+          <img src={logo} alt="tic tac toe logo" className="w-10 h-10  " />
+
+          <div className="flex flex-col items-center mb-4 text-white font-bold">
+            <p className="inline-flex items-center">
+              Your symbol is :
+              <span
+                className={`text-xl ml-1 ${gameState.playerSymbol === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
+              >
+                {gameState.playerSymbol}
+              </span>
+            </p>
+            <p className="text-white font-bold mb-4">
+              {gameState.currentTurn === gameState.playerSymbol
+                ? 'Your turn!'
+                : `Waiting for opponent  to move...`}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {gameState.board.map((cell, index) => (
+              <button
+                key={index}
+                type="button"
+                className={`w-20 h-20 bg-gray-700 text-5xl font-bold rounded ${cell === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
+                onClick={() => addMoveToBoard(index)}
+              >
+                {cell}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {gameState.status === 'COMPLETED' && <div>COMPLETED</div>}
     </main>
