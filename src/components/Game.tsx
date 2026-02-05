@@ -15,8 +15,6 @@ type GameState = {
   status: Status
   board: Board
   playerSymbol: 'X' | 'O' | null
-  playerId: string | null
-  opponentId: string | null
   gameId: string | null
   currentTurn?: 'X' | 'O'
   winner?: 'X' | 'O' | 'DRAW'
@@ -27,8 +25,6 @@ const initialGameState: GameState = {
   status: 'NOT_CONNECTED',
   board: [null, null, null, null, null, null, null, null, null],
   playerSymbol: null,
-  playerId: null,
-  opponentId: null,
   gameId: null,
   currentTurn: undefined,
   winner: undefined,
@@ -50,8 +46,6 @@ type UpdateGameAction = {
   status: Status
   gameId: string
   playerSymbol: 'X' | 'O'
-  playerId: string
-  opponentId: string
   board: Board
   currentTurn: 'X' | 'O'
   winner?: 'X' | 'O' | 'DRAW'
@@ -76,15 +70,13 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
     case 'SET_STATUS':
       return { ...state, status: action.status }
     case 'SET_PLAYER_ID':
-      return { ...state, playerId: action.playerId }
+      return { ...state }
     case 'UPDATE_GAME_STATE':
       return {
         ...state,
         status: action.status,
         gameId: action.gameId,
         playerSymbol: action.playerSymbol,
-        playerId: action.playerId,
-        opponentId: action.opponentId,
         board: action.board,
         currentTurn: action.currentTurn,
         winner: action.winner,
@@ -123,15 +115,13 @@ export const Game = () => {
 
     const handleMessage = (event: MessageEvent) => {
       const message = JSON.parse(event.data)
-      console.log('message', message)
+
       if (message.type === 'GAME_STATE') {
         setGameState({
           type: 'UPDATE_GAME_STATE',
           status: message.status,
           gameId: message.gameId,
           playerSymbol: message.playerSymbol,
-          playerId: message.playerId,
-          opponentId: message.opponentId,
           board: message.board,
           currentTurn: message.currentTurn,
           winner: message.winner,
