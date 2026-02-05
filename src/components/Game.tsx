@@ -198,12 +198,12 @@ export const Game = () => {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
-      <button
+      {/* <button
         className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded"
         onClick={disconnect}
       >
         Disconnect
-      </button>
+      </button> */}
 
       {gameState.status === 'NOT_CONNECTED' && (
         <>
@@ -249,11 +249,16 @@ export const Game = () => {
                 {gameState.playerSymbol}
               </span>
             </p>
-            <p className="text-white font-bold mb-4">
-              {gameState.currentTurn === gameState.playerSymbol
-                ? 'Your turn!'
-                : `Waiting for opponent  to move...`}
-            </p>
+
+            {gameState.currentTurn === gameState.playerSymbol ? (
+              <p className="absolute top-0 bg-red-500 text-white font-bold mb-4 p-3 px-6">
+                Your turn!
+              </p>
+            ) : (
+              <p className="absolute top-0 bg-red-100 text-black font-bold mb-4 p-3 px-6">
+                Waiting for opponent's move...
+              </p>
+            )}
           </div>
 
           <div className="grid grid-cols-3 gap-2">
