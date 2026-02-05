@@ -264,9 +264,12 @@ export const Game = () => {
 
       {gameState.error === 'CONNECTION_LOST' && (
         <>
+          <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
+
           <p className="text-red-500 font-bold p-2 px-4 m-2">
             CONNECTION WITH OPPONENT LOST!
           </p>
+
           <button
             type="button"
             className="bg-red-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
