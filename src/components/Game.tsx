@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react'
 import logo from '../assets/ttt-logo.svg'
+import type { Dispatch } from 'react'
 
 export type Cell = 'X' | 'O' | null
 export type Board = [Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell, Cell]
@@ -95,6 +96,37 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
   }
 }
 
+type HandleSocketMessageInput = {
+  event: MessageEvent
+  dispatch: Dispatch<GameAction>
+}
+
+const handleSocketMessage = ({ event, dispatch }: HandleSocketMessageInput) => {
+  const message = JSON.parse(event.data)
+
+  if (message.type === 'GAME_STATE') {
+    dispatch({
+      type: 'UPDATE_GAME_STATE',
+      status: message.status,
+      gameId: message.gameId,
+      playerSymbol: message.playerSymbol,
+      board: message.board,
+      currentTurn: message.currentTurn,
+      winner: message.winner,
+      error: message.error,
+    })
+  }
+
+  if (message.type === 'GAME_MOVE') {
+    dispatch({
+      type: 'GAME_MOVE',
+      board: message.board,
+      currentTurn: message.currentTurn,
+      error: message.error || null,
+    })
+  }
+}
+
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
   const [gameState, setGameState] = useReducer(gameReducer, initialGameState)
@@ -114,28 +146,7 @@ export const Game = () => {
     socketRef.current = socket
 
     const handleMessage = (event: MessageEvent) => {
-      const message = JSON.parse(event.data)
-
-      if (message.type === 'GAME_STATE') {
-        setGameState({
-          type: 'UPDATE_GAME_STATE',
-          status: message.status,
-          gameId: message.gameId,
-          playerSymbol: message.playerSymbol,
-          board: message.board,
-          currentTurn: message.currentTurn,
-          winner: message.winner,
-          error: message.error,
-        })
-      }
-      if (message.type === 'GAME_MOVE') {
-        setGameState({
-          type: 'GAME_MOVE',
-          board: message.board,
-          currentTurn: message.currentTurn,
-          error: message.error || null,
-        })
-      }
+      handleSocketMessage({ event, dispatch: setGameState })
     }
 
     socket.addEventListener('message', handleMessage)
