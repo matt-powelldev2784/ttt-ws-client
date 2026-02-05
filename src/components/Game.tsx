@@ -280,11 +280,9 @@ export const Game = () => {
           <button
             type="button"
             className="bg-red-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
-            onClick={() =>
-              sendMessage(JSON.stringify({ type: 'START_GAME', payload: {} }))
-            }
+            onClick={() => disconnect()}
           >
-            Start New Game
+            Restart Game
           </button>
         </>
       )}
