@@ -106,6 +106,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
   const [gameState, setGameState] = useReducer(gameReducer, initialGameState)
+  const connectionLost = gameState.error === 'CONNECTION_LOST'
   const serverUrl =
     import.meta.env.VITE_SERVER_URL_LOCAL ??
     import.meta.env.VITE_SERVER_URL_PROD
@@ -185,8 +186,24 @@ export const Game = () => {
     sendMessage(move)
   }
 
+  const disconnect = () => {
+    const socket = socketRef.current
+    if (socket) {
+      socket.close()
+      socketRef.current = null
+      window.location.reload()
+    }
+  }
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
+      <button
+        className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded"
+        onClick={disconnect}
+      >
+        Disconnect
+      </button>
+
       {gameState.status === 'NOT_CONNECTED' && (
         <>
           <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
@@ -218,7 +235,7 @@ export const Game = () => {
         </>
       )}
 
-      {gameState.status === 'IN_PROGRESS' && (
+      {gameState.status === 'IN_PROGRESS' && !connectionLost && (
         <div className="flex flex-col items-center">
           <img src={logo} alt="tic tac toe logo" className="w-10 h-10  " />
 
@@ -254,6 +271,23 @@ export const Game = () => {
       )}
 
       {gameState.status === 'COMPLETED' && <div>COMPLETED</div>}
+
+      {gameState.error === 'CONNECTION_LOST' && (
+        <>
+          <p className="text-red-500 font-bold p-2 px-4 m-2">
+            CONNECTION WITH OPPONENT LOST!
+          </p>
+          <button
+            type="button"
+            className="bg-red-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
+            onClick={() =>
+              sendMessage(JSON.stringify({ type: 'START_GAME', payload: {} }))
+            }
+          >
+            Start New Game
+          </button>
+        </>
+      )}
     </main>
   )
 }
