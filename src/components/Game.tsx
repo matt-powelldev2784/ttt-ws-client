@@ -58,6 +58,13 @@ type GameMoveAction = {
   board: Board
   currentTurn: 'X' | 'O'
   error: string | null | undefined
+  winner?: 'X' | 'O' | 'DRAW' | null
+}
+
+type SetWinnerAction = {
+  type: 'SET_WINNER'
+  winner: 'X' | 'O' | 'DRAW'
+  error: null
 }
 
 type GameAction =
@@ -65,6 +72,7 @@ type GameAction =
   | SetPlayerIdAction
   | UpdateGameAction
   | GameMoveAction
+  | SetWinnerAction
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -80,7 +88,6 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         playerSymbol: action.playerSymbol,
         board: action.board,
         currentTurn: action.currentTurn,
-        winner: action.winner,
         error: action.error || null,
       }
     case 'GAME_MOVE':
@@ -89,6 +96,12 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         board: action.board,
         currentTurn: action.currentTurn,
         error: action.error || null,
+      }
+    case 'SET_WINNER':
+      return {
+        ...state,
+        winner: action.winner,
+        error: null,
       }
 
     default:
@@ -112,7 +125,6 @@ const handleSocketMessage = ({ event, dispatch }: HandleSocketMessageInput) => {
       playerSymbol: message.playerSymbol,
       board: message.board,
       currentTurn: message.currentTurn,
-      winner: message.winner,
       error: message.error,
     })
   }
@@ -123,6 +135,14 @@ const handleSocketMessage = ({ event, dispatch }: HandleSocketMessageInput) => {
       board: message.board,
       currentTurn: message.currentTurn,
       error: message.error || null,
+    })
+  }
+
+  if (message.type === 'SET_WINNER') {
+    dispatch({
+      type: 'SET_WINNER',
+      error: null,
+      winner: message.winner,
     })
   }
 }
@@ -198,12 +218,12 @@ export const Game = () => {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
-      {/* <button
+      <button
         className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded"
         onClick={disconnect}
       >
         Disconnect
-      </button> */}
+      </button>
 
       {gameState.status === 'NOT_CONNECTED' && (
         <>
@@ -268,6 +288,7 @@ export const Game = () => {
                 type="button"
                 className={`w-20 h-20 bg-gray-700 text-5xl font-bold rounded ${cell === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
                 onClick={() => addMoveToBoard(index)}
+                disabled={Boolean(gameState.winner)}
               >
                 {cell}
               </button>
@@ -276,7 +297,35 @@ export const Game = () => {
         </div>
       )}
 
-      {gameState.status === 'COMPLETED' && <div>COMPLETED</div>}
+      {gameState.winner && (
+        <>
+          {gameState.winner === 'DRAW' && (
+            <p className="text-green-500 font-bold p-2 px-4 m-2">
+              "It's a draw!"
+            </p>
+          )}
+
+          {gameState.winner === gameState.playerSymbol && (
+            <p className="text-green-500 font-bold p-2 px-4 m-2">
+              You win! Congratulations! 🎉
+            </p>
+          )}
+
+          {gameState.winner !== gameState.playerSymbol && (
+            <p className="text-red-500 font-bold p-2 px-4 m-2">
+              You lost! Better luck next time!
+            </p>
+          )}
+
+          <button
+            type="button"
+            className="bg-green-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
+            onClick={() => window.location.reload()}
+          >
+            Play Again
+          </button>
+        </>
+      )}
 
       {gameState.error === 'CONNECTION_LOST' && (
         <>
