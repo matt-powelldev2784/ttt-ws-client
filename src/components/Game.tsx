@@ -18,7 +18,7 @@ type GameState = {
   playerSymbol: 'X' | 'O' | null
   gameId: string | null
   currentTurn?: 'X' | 'O'
-  winner?: 'X' | 'O' | 'DRAW'
+  result?: 'X' | 'O' | 'DRAW'
   error?: string | null | undefined
 }
 
@@ -28,7 +28,7 @@ const initialGameState: GameState = {
   playerSymbol: null,
   gameId: null,
   currentTurn: undefined,
-  winner: undefined,
+  result: undefined,
   error: undefined,
 }
 
@@ -49,7 +49,7 @@ type UpdateGameAction = {
   playerSymbol: 'X' | 'O'
   board: Board
   currentTurn: 'X' | 'O'
-  winner?: 'X' | 'O' | 'DRAW'
+  result?: 'X' | 'O' | 'DRAW'
   error: string | null | undefined
 }
 
@@ -58,12 +58,12 @@ type GameMoveAction = {
   board: Board
   currentTurn: 'X' | 'O'
   error: string | null | undefined
-  winner?: 'X' | 'O' | 'DRAW' | null
+  result?: 'X' | 'O' | 'DRAW' | null
 }
 
-type SetWinnerAction = {
-  type: 'SET_WINNER'
-  winner: 'X' | 'O' | 'DRAW'
+type SetResultAction = {
+  type: 'SET_RESULT'
+  result: 'X' | 'O' | 'DRAW'
   error: null
 }
 
@@ -72,7 +72,7 @@ type GameAction =
   | SetPlayerIdAction
   | UpdateGameAction
   | GameMoveAction
-  | SetWinnerAction
+  | SetResultAction
 
 const gameReducer = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
@@ -97,10 +97,10 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         currentTurn: action.currentTurn,
         error: action.error || null,
       }
-    case 'SET_WINNER':
+    case 'SET_RESULT':
       return {
         ...state,
-        winner: action.winner,
+        result: action.result,
         error: null,
       }
 
@@ -138,11 +138,11 @@ const handleSocketMessage = ({ event, dispatch }: HandleSocketMessageInput) => {
     })
   }
 
-  if (message.type === 'SET_WINNER') {
+  if (message.type === 'SET_RESULT') {
     dispatch({
-      type: 'SET_WINNER',
+      type: 'SET_RESULT',
       error: null,
-      winner: message.winner,
+      result: message.result,
     })
   }
 }
@@ -288,7 +288,7 @@ export const Game = () => {
                 type="button"
                 className={`w-20 h-20 bg-gray-700 text-5xl font-bold rounded ${cell === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
                 onClick={() => addMoveToBoard(index)}
-                disabled={Boolean(gameState.winner)}
+                disabled={Boolean(gameState.result)}
               >
                 {cell}
               </button>
@@ -297,21 +297,21 @@ export const Game = () => {
         </div>
       )}
 
-      {gameState.winner && (
+      {gameState.result && (
         <>
-          {gameState.winner === 'DRAW' && (
+          {gameState.result === 'DRAW' && (
             <p className="text-green-500 font-bold p-2 px-4 m-2">
               "It's a draw!"
             </p>
           )}
 
-          {gameState.winner === gameState.playerSymbol && (
+          {gameState.result === gameState.playerSymbol && (
             <p className="text-green-500 font-bold p-2 px-4 m-2">
               You win! Congratulations! 🎉
             </p>
           )}
 
-          {gameState.winner !== gameState.playerSymbol && (
+          {gameState.result !== gameState.playerSymbol && (
             <p className="text-red-500 font-bold p-2 px-4 m-2">
               You lost! Better luck next time!
             </p>
