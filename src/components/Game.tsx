@@ -6,7 +6,6 @@ import { handleSocketMessage } from './handleSocketMessage'
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
   const [gameState, setGameState] = useReducer(gameReducer, initialGameState)
-  const connectionLost = gameState.error === 'CONNECTION_LOST'
   const serverUrl =
     import.meta.env.VITE_SERVER_URL_LOCAL ??
     import.meta.env.VITE_SERVER_URL_PROD
@@ -66,6 +65,7 @@ export const Game = () => {
     sendMessage(move)
   }
 
+  // to test connection loss states
   const disconnect = () => {
     const socket = socketRef.current
     if (socket) {
@@ -77,18 +77,21 @@ export const Game = () => {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
-      <button
-        className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded"
-        onClick={disconnect}
-      >
-        Disconnect
-      </button>
+      {gameState.gameMessage !== null && (
+        <p className="absolute top-0 bg-white text-black font-bold mb-4 p-3 px-6">
+          {gameState.gameMessage}
+        </p>
+      )}
 
       {gameState.status === 'NOT_CONNECTED' && (
         <>
           <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
           <p className="text-white font-bold p-2 px-4 m-2"> Connecting...</p>
         </>
+      )}
+
+      {gameState.status === 'WAITING_FOR_OPPONENT' && (
+        <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
       )}
 
       {gameState.status === 'CONNECTED' && (
@@ -106,19 +109,8 @@ export const Game = () => {
         </>
       )}
 
-      {gameState.status === 'WAITING_FOR_OPPONENT' && (
-        <>
-          <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
-          <p className="text-white font-bold p-2 px-4 m-2">
-            Waiting for opponent...
-          </p>
-        </>
-      )}
-
-      {gameState.status === 'IN_PROGRESS' && !connectionLost && (
+      {gameState.status === 'IN_PROGRESS' && (
         <div className="flex flex-col items-center">
-          <img src={logo} alt="tic tac toe logo" className="w-10 h-10  " />
-
           <div className="flex flex-col items-center mb-4 text-white font-bold">
             <p className="inline-flex items-center">
               Your symbol is :
@@ -128,16 +120,6 @@ export const Game = () => {
                 {gameState.playerSymbol}
               </span>
             </p>
-
-            {gameState.currentTurn === gameState.playerSymbol ? (
-              <p className="absolute top-0 bg-red-500 text-white font-bold mb-4 p-3 px-6">
-                Your turn!
-              </p>
-            ) : (
-              <p className="absolute top-0 bg-red-100 text-black font-bold mb-4 p-3 px-6">
-                Waiting for opponent's move...
-              </p>
-            )}
           </div>
 
           <div className="grid grid-cols-3 gap-2">
@@ -152,41 +134,22 @@ export const Game = () => {
                 {cell}
               </button>
             ))}
+            {gameState.result && <div className="absolute" />}
           </div>
         </div>
       )}
 
       {gameState.result && (
-        <>
-          {gameState.result === 'DRAW' && (
-            <p className="text-green-500 font-bold p-2 px-4 m-2">
-              "It's a draw!"
-            </p>
-          )}
-
-          {gameState.result === gameState.playerSymbol && (
-            <p className="text-green-500 font-bold p-2 px-4 m-2">
-              You win! Congratulations! 🎉
-            </p>
-          )}
-
-          {gameState.result !== gameState.playerSymbol && (
-            <p className="text-red-500 font-bold p-2 px-4 m-2">
-              You lost! Better luck next time!
-            </p>
-          )}
-
-          <button
-            type="button"
-            className="bg-green-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
-            onClick={() => window.location.reload()}
-          >
-            Play Again
-          </button>
-        </>
+        <button
+          type="button"
+          className="bg-green-600 cursor-pointer p-2 px-4 rounded text-white text-bold mt-6"
+          onClick={() => window.location.reload()}
+        >
+          Play Again
+        </button>
       )}
 
-      {gameState.error === 'CONNECTION_LOST' && (
+      {gameState.error === 'CONNECTION_LOST' && !gameState.result && (
         <>
           <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
 
@@ -203,6 +166,13 @@ export const Game = () => {
           </button>
         </>
       )}
+
+      <button
+        className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded"
+        onClick={disconnect}
+      >
+        Disconnect
+      </button>
     </main>
   )
 }

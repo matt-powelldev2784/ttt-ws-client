@@ -21,6 +21,7 @@ export const handleSocketMessage = ({
       board: message.board,
       currentTurn: message.currentTurn,
       error: message.error,
+      gameMessage: message.gameMessage,
     })
   }
 
@@ -38,6 +39,7 @@ export const handleSocketMessage = ({
       type: 'SET_RESULT',
       error: null,
       result: message.result,
+      gameMessage: message.gameMessage,
     })
   }
 }

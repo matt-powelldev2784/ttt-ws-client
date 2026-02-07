@@ -7,6 +7,7 @@ type Status =
   | 'WAITING_FOR_OPPONENT'
   | 'IN_PROGRESS'
   | 'COMPLETED'
+  | 'CONNECTION_LOST'
 
 type GameState = {
   status: Status
@@ -15,7 +16,8 @@ type GameState = {
   gameId: string | null
   currentTurn?: 'X' | 'O'
   result?: 'X' | 'O' | 'DRAW'
-  error?: string | null | undefined
+  error?: string | null
+  gameMessage: string | null
 }
 
 export const initialGameState: GameState = {
@@ -26,6 +28,7 @@ export const initialGameState: GameState = {
   currentTurn: undefined,
   result: undefined,
   error: undefined,
+  gameMessage: null,
 }
 
 type StatusAction = {
@@ -47,6 +50,7 @@ type UpdateGameAction = {
   currentTurn: 'X' | 'O'
   result?: 'X' | 'O' | 'DRAW'
   error: string | null | undefined
+  gameMessage: string | null
 }
 
 type GameMoveAction = {
@@ -61,6 +65,7 @@ type SetResultAction = {
   type: 'SET_RESULT'
   result: 'X' | 'O' | 'DRAW'
   error: null
+  gameMessage: string | null
 }
 
 export type GameAction =
@@ -88,6 +93,7 @@ export const gameReducer = (
         board: action.board,
         currentTurn: action.currentTurn,
         error: action.error || null,
+        gameMessage: action.gameMessage,
       }
     case 'UPDATE_BOARD':
       return {
@@ -101,6 +107,7 @@ export const gameReducer = (
         ...state,
         result: action.result,
         error: null,
+        gameMessage: action.gameMessage,
       }
 
     default:
