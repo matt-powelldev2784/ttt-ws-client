@@ -54,7 +54,7 @@ type UpdateGameAction = {
 }
 
 type GameMoveAction = {
-  type: 'GAME_MOVE'
+  type: 'UPDATE_BOARD'
   board: Board
   currentTurn: 'X' | 'O'
   error: string | null | undefined
@@ -90,7 +90,7 @@ const gameReducer = (state: GameState, action: GameAction): GameState => {
         currentTurn: action.currentTurn,
         error: action.error || null,
       }
-    case 'GAME_MOVE':
+    case 'UPDATE_BOARD':
       return {
         ...state,
         board: action.board,
@@ -129,9 +129,9 @@ const handleSocketMessage = ({ event, dispatch }: HandleSocketMessageInput) => {
     })
   }
 
-  if (message.type === 'GAME_MOVE') {
+  if (message.type === 'UPDATE_BOARD') {
     dispatch({
-      type: 'GAME_MOVE',
+      type: 'UPDATE_BOARD',
       board: message.board,
       currentTurn: message.currentTurn,
       error: message.error || null,
