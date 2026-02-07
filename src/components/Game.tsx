@@ -1,46 +1,7 @@
 import { useEffect, useReducer, useRef } from 'react'
 import logo from '../assets/ttt-logo.svg'
 import { gameReducer, initialGameState } from './gameStateReducer'
-import type { GameAction } from './gameStateReducer'
-import type { Dispatch } from 'react'
-
-type HandleSocketMessageInput = {
-  event: MessageEvent
-  dispatch: Dispatch<GameAction>
-}
-
-const handleSocketMessage = ({ event, dispatch }: HandleSocketMessageInput) => {
-  const message = JSON.parse(event.data)
-
-  if (message.type === 'GAME_STATE') {
-    dispatch({
-      type: 'UPDATE_GAME_STATE',
-      status: message.status,
-      gameId: message.gameId,
-      playerSymbol: message.playerSymbol,
-      board: message.board,
-      currentTurn: message.currentTurn,
-      error: message.error,
-    })
-  }
-
-  if (message.type === 'UPDATE_BOARD') {
-    dispatch({
-      type: 'UPDATE_BOARD',
-      board: message.board,
-      currentTurn: message.currentTurn,
-      error: message.error || null,
-    })
-  }
-
-  if (message.type === 'SET_RESULT') {
-    dispatch({
-      type: 'SET_RESULT',
-      error: null,
-      result: message.result,
-    })
-  }
-}
+import { handleSocketMessage } from './handleSocketMessage'
 
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
@@ -52,6 +13,7 @@ export const Game = () => {
 
   console.table(gameState)
 
+  // connect to server and set up message handler
   useEffect(() => {
     if (socketRef.current) {
       return
@@ -73,6 +35,7 @@ export const Game = () => {
     }
   }, [])
 
+  // send message to server
   const sendMessage = (message: string) => {
     const socket = socketRef.current
     if (!socket) {
@@ -89,6 +52,7 @@ export const Game = () => {
     socket.send(message)
   }
 
+  // handle player move
   const addMoveToBoard = (index: number) => {
     const move = JSON.stringify({
       type: 'MAKE_MOVE',
