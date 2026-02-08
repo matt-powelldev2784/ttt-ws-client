@@ -161,7 +161,7 @@ export const Game = () => {
 
           <button
             type="button"
-            className="bg-red-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
+            className="bg-green-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
             onClick={() => disconnect()}
           >
             Start New Game
