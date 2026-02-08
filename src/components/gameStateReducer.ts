@@ -59,10 +59,12 @@ type GameMoveAction = {
   currentTurn: 'X' | 'O'
   error: string | null | undefined
   result?: 'X' | 'O' | 'DRAW' | null
+  gameMessage?: string | null
 }
 
 type SetResultAction = {
   type: 'SET_RESULT'
+  status: Status
   result: 'X' | 'O' | 'DRAW'
   error: null
   gameMessage: string | null
@@ -101,10 +103,12 @@ export const gameReducer = (
         board: action.board,
         currentTurn: action.currentTurn,
         error: action.error || null,
+        gameMessage: action.gameMessage || null,
       }
     case 'SET_RESULT':
       return {
         ...state,
+        status: action.status,
         result: action.result,
         error: null,
         gameMessage: action.gameMessage,

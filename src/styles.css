@@ -1,15 +1,21 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 body {
   @apply m-0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+    'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
+/* to add border to all elements, uncomment the following lines */
+/* this is for debugging layout only, not for production */
+/* * {
+  @apply border-1 border-green-500;
+} */

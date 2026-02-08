@@ -31,12 +31,14 @@ export const handleSocketMessage = ({
       board: message.board,
       currentTurn: message.currentTurn,
       error: message.error || null,
+      gameMessage: message.gameMessage || null,
     })
   }
 
   if (message.type === 'SET_RESULT') {
     dispatch({
       type: 'SET_RESULT',
+      status: message.status,
       error: null,
       result: message.result,
       gameMessage: message.gameMessage,

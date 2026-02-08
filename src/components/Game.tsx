@@ -109,7 +109,8 @@ export const Game = () => {
         </>
       )}
 
-      {gameState.status === 'IN_PROGRESS' && (
+      {(gameState.status === 'IN_PROGRESS' ||
+        gameState.status === 'COMPLETED') && (
         <div className="flex flex-col items-center">
           <div className="flex flex-col items-center mb-4 text-white font-bold">
             <p className="inline-flex items-center">
@@ -122,7 +123,9 @@ export const Game = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
+          <div
+            className={`grid grid-cols-3 gap-2 ${gameState.result ? 'pointer-events-none opacity-20' : 'opacity-100'}`}
+          >
             {gameState.board.map((cell, index) => (
               <button
                 key={index}
@@ -134,22 +137,21 @@ export const Game = () => {
                 {cell}
               </button>
             ))}
-            {gameState.result && <div className="absolute" />}
           </div>
+
+          {gameState.result && (
+            <button
+              type="button"
+              className="bg-green-600 cursor-pointer p-2 px-4 rounded text-white text-bold mt-6 mb-6"
+              onClick={() => window.location.reload()}
+            >
+              Play Again
+            </button>
+          )}
         </div>
       )}
 
-      {gameState.result && (
-        <button
-          type="button"
-          className="bg-green-600 cursor-pointer p-2 px-4 rounded text-white text-bold mt-6"
-          onClick={() => window.location.reload()}
-        >
-          Play Again
-        </button>
-      )}
-
-      {gameState.error === 'CONNECTION_LOST' && !gameState.result && (
+      {gameState.status === 'CONNECTION_LOST' && (
         <>
           <img src={logo} alt="tic tac toe logo" className="w-40 h-40  " />
 
@@ -162,7 +164,7 @@ export const Game = () => {
             className="bg-red-600 cursor-pointer p-2 px-4 rounded text-white text-bold"
             onClick={() => disconnect()}
           >
-            Restart Game
+            Start New Game
           </button>
         </>
       )}
