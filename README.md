@@ -19,6 +19,8 @@ This client connects to the server in this repo:
 
 https://github.com/matt-powelldev2784/ttt-ws-server
 
+The server is deployed on Render.
+
 ## Environment Variables
 
 Create a `.env` file in the project root:
