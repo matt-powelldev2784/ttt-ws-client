@@ -65,7 +65,7 @@ export const Game = () => {
     sendMessage(move)
   }
 
-  // to test connection loss states
+  // disconnect from server and reset game state
   const disconnect = () => {
     const socket = socketRef.current
     if (socket) {
@@ -168,13 +168,6 @@ export const Game = () => {
           </button>
         </>
       )}
-
-      <button
-        className="absolute top-4 right-4 bg-red-600 text-white p-2 rounded"
-        onClick={disconnect}
-      >
-        Disconnect
-      </button>
     </main>
   )
 }
