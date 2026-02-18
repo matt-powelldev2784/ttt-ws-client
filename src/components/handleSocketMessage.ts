@@ -12,36 +12,14 @@ export const handleSocketMessage = ({
 }: HandleSocketMessageInput) => {
   const message = JSON.parse(event.data)
 
-  if (message.type === 'GAME_STATE') {
-    dispatch({
-      type: 'UPDATE_GAME_STATE',
-      status: message.status,
-      gameId: message.gameId,
-      playerSymbol: message.playerSymbol,
-      board: message.board,
-      currentTurn: message.currentTurn,
-      error: message.error,
-      gameMessage: message.gameMessage,
-    })
-  }
-
-  if (message.type === 'UPDATE_BOARD') {
-    dispatch({
-      type: 'UPDATE_BOARD',
-      board: message.board,
-      currentTurn: message.currentTurn,
-      error: message.error || null,
-      gameMessage: message.gameMessage || null,
-    })
-  }
-
-  if (message.type === 'SET_RESULT') {
-    dispatch({
-      type: 'SET_RESULT',
-      status: message.status,
-      error: null,
-      result: message.result,
-      gameMessage: message.gameMessage,
-    })
-  }
+  dispatch({
+    type: 'UPDATE_GAME_STATE',
+    status: message.status,
+    gameId: message.gameId,
+    playerSymbol: message.playerSymbol,
+    board: message.board,
+    currentTurn: message.currentTurn,
+    error: message.error,
+    gameMessage: message.gameMessage,
+  })
 }
