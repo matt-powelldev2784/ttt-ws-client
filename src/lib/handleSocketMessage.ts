@@ -1,25 +1,24 @@
-import type { Dispatch } from 'react'
-import type { GameAction } from './gameStateReducer'
+import type { Dispatch, SetStateAction } from 'react'
+import type { GameState } from './types'
 
 type HandleSocketMessageInput = {
   event: MessageEvent
-  dispatch: Dispatch<GameAction>
+  setGameState: Dispatch<SetStateAction<GameState>>
 }
 
 export const handleSocketMessage = ({
   event,
-  dispatch,
+  setGameState,
 }: HandleSocketMessageInput) => {
   const message = JSON.parse(event.data)
 
-  dispatch({
-    type: 'UPDATE_GAME_STATE',
+  setGameState({
     status: message.status,
     gameId: message.gameId,
     playerSymbol: message.playerSymbol,
     board: message.board,
     currentTurn: message.currentTurn,
-    error: message.error,
+    error: message.error ?? null,
     gameMessage: message.gameMessage,
     result: message.result,
   })

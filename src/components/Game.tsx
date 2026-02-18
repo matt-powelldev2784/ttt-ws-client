@@ -1,11 +1,11 @@
-import { useEffect, useReducer, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import logo from '../assets/ttt-logo.svg'
-import { gameReducer, initialGameState } from './gameStateReducer'
-import { handleSocketMessage } from './handleSocketMessage'
+import { handleSocketMessage } from '../lib/handleSocketMessage'
+import { initialGameState } from '../lib/types'
 
 export const Game = () => {
   const socketRef = useRef<WebSocket | null>(null)
-  const [gameState, setGameState] = useReducer(gameReducer, initialGameState)
+  const [gameState, setGameState] = useState(initialGameState)
   const serverUrl =
     import.meta.env.VITE_SERVER_URL_LOCAL ??
     import.meta.env.VITE_SERVER_URL_PROD
@@ -22,7 +22,7 @@ export const Game = () => {
     socketRef.current = socket
 
     const handleMessage = (event: MessageEvent) => {
-      handleSocketMessage({ event, dispatch: setGameState })
+      handleSocketMessage({ event, setGameState })
     }
 
     socket.addEventListener('message', handleMessage)
@@ -75,6 +75,7 @@ export const Game = () => {
     }
   }
 
+  // reuseable board component
   const board = (
     <div className="flex flex-col items-center">
       <div className="flex flex-col items-center mb-4 text-white font-bold">
