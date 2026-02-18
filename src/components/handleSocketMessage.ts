@@ -21,5 +21,6 @@ export const handleSocketMessage = ({
     currentTurn: message.currentTurn,
     error: message.error,
     gameMessage: message.gameMessage,
+    result: message.result,
   })
 }

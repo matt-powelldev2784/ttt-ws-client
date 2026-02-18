@@ -15,7 +15,7 @@ type GameState = {
   playerSymbol: 'X' | 'O' | null
   gameId: string | null
   currentTurn?: 'X' | 'O'
-  result?: 'X' | 'O' | 'DRAW'
+  result: 'X' | 'O' | 'DRAW' | undefined
   error?: string | null
   gameMessage: string | null
 }
@@ -31,11 +31,6 @@ export const initialGameState: GameState = {
   gameMessage: null,
 }
 
-type StatusAction = {
-  type: 'SET_STATUS'
-  status: Status
-}
-
 type SetPlayerIdAction = {
   type: 'SET_PLAYER_ID'
   playerId: string
@@ -48,20 +43,18 @@ type UpdateGameAction = {
   playerSymbol: 'X' | 'O'
   board: Board
   currentTurn: 'X' | 'O'
-  result?: 'X' | 'O' | 'DRAW'
+  result: 'X' | 'O' | 'DRAW'
   error: string | null | undefined
   gameMessage: string | null
 }
 
-export type GameAction = StatusAction | SetPlayerIdAction | UpdateGameAction
+export type GameAction = SetPlayerIdAction | UpdateGameAction
 
 export const gameReducer = (
   state: GameState,
   action: GameAction,
 ): GameState => {
   switch (action.type) {
-    case 'SET_STATUS':
-      return { ...state, status: action.status }
     case 'SET_PLAYER_ID':
       return { ...state }
     case 'UPDATE_GAME_STATE':
@@ -74,6 +67,7 @@ export const gameReducer = (
         currentTurn: action.currentTurn,
         error: action.error || null,
         gameMessage: action.gameMessage,
+        result: action.result,
       }
 
     default:

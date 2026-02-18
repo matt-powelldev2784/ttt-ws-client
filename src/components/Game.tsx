@@ -75,6 +75,37 @@ export const Game = () => {
     }
   }
 
+  const board = (
+    <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mb-4 text-white font-bold">
+        <p className="inline-flex items-center">
+          Your symbol is :
+          <span
+            className={`text-xl ml-1 ${gameState.playerSymbol === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
+          >
+            {gameState.playerSymbol}
+          </span>
+        </p>
+      </div>
+
+      <div
+        className={`grid grid-cols-3 gap-2 ${gameState.result ? 'pointer-events-none opacity-20' : 'opacity-100'}`}
+      >
+        {gameState.board.map((cell, index) => (
+          <button
+            key={index}
+            type="button"
+            className={`w-20 h-20 bg-gray-700 text-5xl font-bold rounded ${cell === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
+            onClick={() => addMoveToBoard(index)}
+            disabled={Boolean(gameState.result)}
+          >
+            {cell}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-gray-800">
       {gameState.gameMessage !== null && (
@@ -109,35 +140,11 @@ export const Game = () => {
         </>
       )}
 
-      {(gameState.status === 'IN_PROGRESS' ||
-        gameState.status === 'COMPLETED') && (
-        <div className="flex flex-col items-center">
-          <div className="flex flex-col items-center mb-4 text-white font-bold">
-            <p className="inline-flex items-center">
-              Your symbol is :
-              <span
-                className={`text-xl ml-1 ${gameState.playerSymbol === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
-              >
-                {gameState.playerSymbol}
-              </span>
-            </p>
-          </div>
+      {gameState.status === 'IN_PROGRESS' && <>{board}</>}
 
-          <div
-            className={`grid grid-cols-3 gap-2 ${gameState.result ? 'pointer-events-none opacity-20' : 'opacity-100'}`}
-          >
-            {gameState.board.map((cell, index) => (
-              <button
-                key={index}
-                type="button"
-                className={`w-20 h-20 bg-gray-700 text-5xl font-bold rounded ${cell === 'O' ? 'text-[#1bbbbb]' : 'text-[#3990e5]'}`}
-                onClick={() => addMoveToBoard(index)}
-                disabled={Boolean(gameState.result)}
-              >
-                {cell}
-              </button>
-            ))}
-          </div>
+      {gameState.status === 'COMPLETED' && (
+        <>
+          {board}
 
           {gameState.result && (
             <button
@@ -148,7 +155,7 @@ export const Game = () => {
               Play Again
             </button>
           )}
-        </div>
+        </>
       )}
 
       {gameState.status === 'CONNECTION_LOST' && (
