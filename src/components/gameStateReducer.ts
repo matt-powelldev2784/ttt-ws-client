@@ -15,7 +15,7 @@ type GameState = {
   playerSymbol: 'X' | 'O' | null
   gameId: string | null
   currentTurn?: 'X' | 'O'
-  result?: 'X' | 'O' | 'DRAW'
+  result: 'X' | 'O' | 'DRAW' | undefined
   error?: string | null
   gameMessage: string | null
 }
@@ -31,11 +31,6 @@ export const initialGameState: GameState = {
   gameMessage: null,
 }
 
-type StatusAction = {
-  type: 'SET_STATUS'
-  status: Status
-}
-
 type SetPlayerIdAction = {
   type: 'SET_PLAYER_ID'
   playerId: string
@@ -48,42 +43,18 @@ type UpdateGameAction = {
   playerSymbol: 'X' | 'O'
   board: Board
   currentTurn: 'X' | 'O'
-  result?: 'X' | 'O' | 'DRAW'
-  error: string | null | undefined
-  gameMessage: string | null
-}
-
-type GameMoveAction = {
-  type: 'UPDATE_BOARD'
-  board: Board
-  currentTurn: 'X' | 'O'
-  error: string | null | undefined
-  result?: 'X' | 'O' | 'DRAW' | null
-  gameMessage?: string | null
-}
-
-type SetResultAction = {
-  type: 'SET_RESULT'
-  status: Status
   result: 'X' | 'O' | 'DRAW'
-  error: null
+  error: string | null | undefined
   gameMessage: string | null
 }
 
-export type GameAction =
-  | StatusAction
-  | SetPlayerIdAction
-  | UpdateGameAction
-  | GameMoveAction
-  | SetResultAction
+export type GameAction = SetPlayerIdAction | UpdateGameAction
 
 export const gameReducer = (
   state: GameState,
   action: GameAction,
 ): GameState => {
   switch (action.type) {
-    case 'SET_STATUS':
-      return { ...state, status: action.status }
     case 'SET_PLAYER_ID':
       return { ...state }
     case 'UPDATE_GAME_STATE':
@@ -96,22 +67,7 @@ export const gameReducer = (
         currentTurn: action.currentTurn,
         error: action.error || null,
         gameMessage: action.gameMessage,
-      }
-    case 'UPDATE_BOARD':
-      return {
-        ...state,
-        board: action.board,
-        currentTurn: action.currentTurn,
-        error: action.error || null,
-        gameMessage: action.gameMessage || null,
-      }
-    case 'SET_RESULT':
-      return {
-        ...state,
-        status: action.status,
         result: action.result,
-        error: null,
-        gameMessage: action.gameMessage,
       }
 
     default:
